@@ -2,14 +2,22 @@
     <div style="width:100% height:100%" >
         <van-tabs>
             <van-tab title="我的账号" >
-                <p style="margin-bottom:0px" >您的账号信息</p>
+                <p class="test-btn" >您的账号信息</p>
+                 <svg-icon icon-class="eye1" iconClass="eye" ></svg-icon>
                 <van-form class="gap-10">
-                    <van-field label="姓名" placeholder="请输入用户名" ></van-field>
+                    <van-field label="姓名" placeholder="请输入用户名" v-model="home" ></van-field>
                     <van-field label="手机号码" placeholder="请输入手机号码" ></van-field>
-                    <van-field label="级别" placeholder="请输入手机号码" ></van-field>
+                    <van-field label="级别" placeholder="请输入手机号码" >
+                    </van-field>
+                    <slot-test >
+                        <template #default>
+                             <van-button title="我来了2" type="primary" class="widht-100"   >我是按钮2</van-button>
+                        </template>
+                     
+                    </slot-test>
                 </van-form>
                 <van-button type="primary" size="large" class="gap-10" @click="checkRoomClick()" >查看场所列表</van-button><br>
-                <van-button type="primary" size="large">添加新的场所</van-button>
+                <van-button type="primary" size="large" @click="addNewRoomClick()" >添加新的场所</van-button>
             </van-tab>
 
             <van-tab title="堂主管理" >
@@ -70,15 +78,30 @@
 </template>
 
 <script lang="ts" >
-import { Calendar, Dialog } from "vant";
+import { Calendar } from "vant";
 import { Options, Vue } from "vue-class-component";
 import {BankData} from '@/data/commonData'
 import { reqFetchList } from '@/api/agent/agent'
+import { PERMISSION_ACTION_EVENT, PERMISSION_EVENT } from "@/store/modules/permission";
+import { mapGetters, mapMutations } from "vuex";
+import TestSlot from "@/components/SlotTest.vue";
+
 
 @Options({
     name:"Agent",
     components:{
-        [Calendar.name]:Calendar
+        [Calendar.name]:Calendar,
+        [TestSlot.name]:TestSlot
+    },
+    computed:
+    {
+        ...mapGetters(['home'])
+    },
+    methods:
+    {
+        ...mapMutations({
+            changeHome:'home'
+        })
     }
 })
 export default class Agent extends Vue{
@@ -102,6 +125,7 @@ export default class Agent extends Vue{
     private bankList:{name:string}[] = [];
 
     private selectedReadFlag:boolean = true;
+    private home1:string = "home1";
 
     public created():void
     {
@@ -144,6 +168,45 @@ export default class Agent extends Vue{
         }).catch(err=>{
             console.log("error");
         })
+    }
+
+    private addNewRoomClick():void
+    {
+
+        //let home = this.$store.state.permission.getters;
+        //console.log("go this...." + home);
+
+        let abc1 = this.$store.state.permission ;
+
+        console.log(abc1.home);
+
+        this.$store.commit(PERMISSION_EVENT.SET_HOME,"bcd");
+
+        /** 
+        let abc = this.$store.state.permission as Permission;
+
+        console.log(abc);
+
+        this.$store.dispatch(PERMISSION_ACTION_EVENT.INCREMENT,"abc2");
+
+        let abc2 = this.$store.state.permission as Permission;
+
+        console.log("abc2:" + abc2.home);
+
+        let abc3 =  this.$store.state.permission.getters;
+
+        console.log("abc3:" + abc3);
+
+        let abc4 =  this.$store.getters.home;
+        
+        debugger
+        **/
+
+       this.$store.dispatch(PERMISSION_ACTION_EVENT.INCREMENT,"czh").then(response=>{
+           console.log("go this...");
+       }).catch(error=>{
+
+       });
     }
 
     private showPickTimeHandler(type:number):void
@@ -205,14 +268,46 @@ export default class Agent extends Vue{
 }
 </script>
 
-<style scoped>
+<style lang="less" >
+.test-btn 
+{
+    float: left;
+    margin-left: 20px;
+}
 .gap-10
 {
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 .txt-align-left
 {
     text-align: left;
 }
-
+.border
+{
+    border:2px solid;
+    border-radius:25px;
+}
+.rcorners6 
+{
+    border-radius: 15px 50px;
+    background: #8AC007;
+    padding: 20px;
+    width: 200px;
+    height: 150px;
+}
+.btn1
+{
+    margin-right:20px;
+    float:"right";
+}
+.widht-100
+{
+    width: 80%;
+    border-radius: 15px 50px;
+    background: #8AC007;
+}
+.action-sheet-max-height
+{
+    height: 40;
+}
 </style>
