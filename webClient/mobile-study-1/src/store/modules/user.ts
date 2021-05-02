@@ -1,6 +1,5 @@
 import RootStateTypes from "@/InterfaceTypes";
-import { constRoutes } from "@/router";
-import { Getter, Module } from "vuex";
+import {  Module } from "vuex";
 
 export type StateUserInfoData = 
 {
@@ -13,6 +12,8 @@ export enum STATE_USERINFO_EVENT
 {
     SET_ROUTES  =   "SET_ROUTES",
 }
+
+
 
 const StateUserInfo:Module<StateUserInfoData,RootStateTypes> = {
     state:
