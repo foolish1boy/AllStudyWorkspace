@@ -11,6 +11,8 @@ import './InterfaceTypes'
 
 import SvgIcon from '@/components/SvgIcon.vue'// svg组件
 
+import '@/spliteCode'
+
 const app = createApp(App);
 app.component('svg-icon', SvgIcon);
 app.use(store);

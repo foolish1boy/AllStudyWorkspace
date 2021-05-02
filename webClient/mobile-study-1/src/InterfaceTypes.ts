@@ -5,7 +5,7 @@ import { StateUserInfoData } from './store/modules/user'
 
 export default interface RootStateTypes
 {
-  getters?:{[key:string]:any}
+  
 }
 
 declare module '@vue/runtime-core' {// Declare your own store states.

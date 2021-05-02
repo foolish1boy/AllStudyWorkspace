@@ -1,4 +1,6 @@
 const path = require('path')
+const merge = require('webpack-merge');
+const tsImportPluginFactory = require('ts-import-plugin');
 
 function resolve(dir) {
   let p = path.join(__dirname, dir);
@@ -29,7 +31,7 @@ module.exports =
       output: {
         filename: '[name].js',
         chunkFilename: '[name].js'
-      }
+      },
     },
     chainWebpack: config=>{
       const svgRule = config.module.rule('svg'); // 找到svg-loader
@@ -44,10 +46,34 @@ module.exports =
         });
 
         // 修改images loader 添加svg处理
-      const imagesRule = config.module.rule('images')
-      imagesRule.exclude.add(resolve('src/icons'))
+      const imagesRule = config.module.rule('images');
+      imagesRule.exclude.add(resolve('src/icons'));
       config.module
         .rule('images')
-        .test(/\.(png|jpe?g|gif|svg)(\?.*)?$/)
+        .test(/\.(png|jpe?g|gif|svg)(\?.*)?$/);
+
+      //ts-loader
+      config.module
+        .rule('ts')
+        .use('ts-loader')
+        .tap(options => {
+          options = merge(options, {
+            transpileOnly: true,
+            getCustomTransformers: () => ({
+              before: [
+                tsImportPluginFactory({
+                  libraryName: 'vant',
+                  libraryDirectory: 'es',
+                  style: true
+                })
+              ]
+            }),
+            compilerOptions: {
+              module: 'es2015'
+            }
+          });
+          return options;
+        });
+
       }
 }

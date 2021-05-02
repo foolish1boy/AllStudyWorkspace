@@ -13,7 +13,7 @@ export　const constRoutes: Array<RouteRecordRaw> = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () => import(/* webpackChunkName: "About" */ '../views/About.vue')
   },
   {
     path: '/agent',
@@ -21,8 +21,9 @@ export　const constRoutes: Array<RouteRecordRaw> = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "agent" */ '../views/Agent.vue')
+    component: () => import(/* webpackChunkName: "Agent" */ '../views/Agent.vue')
   }
+  
 ]
 
 const router = createRouter({

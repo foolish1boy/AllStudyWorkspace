@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "cross-env": "^7.0.3",
     "svg-sprite-loader": "^6.0.6",
+    "ts-import-plugin": "^1.6.7",
     "vant": "^3.0.14",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",

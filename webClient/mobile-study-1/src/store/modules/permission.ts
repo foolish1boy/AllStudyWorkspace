@@ -28,7 +28,6 @@ const permission:Module<Permission,RootStateTypes> = {
         addRoutes:[],
         home:"abc",
         count:0,
-        getters:{}
     },
     mutations:
     {
