@@ -26,5 +26,7 @@ app.config.globalProperties.$gobalI18n = i18n;
 
 
 Object.keys(directives).forEach(key => {
-    app.directive(key, (directives as { [key: string ]: Directive })[key])
+    //let directive:Directive = directives[key] as Directive ;
+    console.log( key );
+    //app.directive(key, (directives as { [key: string ]: Directive })[key])
   })

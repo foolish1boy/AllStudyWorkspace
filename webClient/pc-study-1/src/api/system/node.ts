@@ -1,8 +1,8 @@
-import { NodeInfo } from '@/Infos/ServerInfos';
-import Request from '@/utils/Request'
+import { NodeInfo, ResponseInfo } from '@/Infos/ServerInfos';
+import Request from '@/utils/JSONRequest'
 import { AxiosPromise } from 'axios';
 
-export function reqFetchNodeList():AxiosPromise<any>
+export function reqFetchNodeList<T>():AxiosPromise<ResponseInfo<T>>
 {
     return Request({
         url:'/system/node/list',
@@ -11,7 +11,7 @@ export function reqFetchNodeList():AxiosPromise<any>
 }
 
 
-export function reqCreateNode(data:NodeInfo):AxiosPromise<any>
+export function reqCreateNode<T>(data:NodeInfo):AxiosPromise<ResponseInfo<T>>
 {
     return Request({
         url:'/system/node/',
@@ -21,7 +21,7 @@ export function reqCreateNode(data:NodeInfo):AxiosPromise<any>
 }
 
 
-export function reqFetchNodeDetail(id:number):AxiosPromise<any>
+export function reqFetchNodeDetail<T>(id:number):AxiosPromise<ResponseInfo<T>>
 {
     return Request({
         url:"/system/node/" + id,
@@ -30,7 +30,8 @@ export function reqFetchNodeDetail(id:number):AxiosPromise<any>
 }
 
 
-export function reqUpdateNode(data:NodeInfo) {
+export function reqUpdateNode<T>(data:NodeInfo) :AxiosPromise<ResponseInfo<T>>
+{
     return Request({
       url: '/system/node/',
       method: 'put',
@@ -39,7 +40,8 @@ export function reqUpdateNode(data:NodeInfo) {
   }
   
   
-  export function reqDeleteNode(id:number) {
+  export function reqDeleteNode<T>(id:number) :AxiosPromise<ResponseInfo<T>>
+  {
     return Request({
       url: '/system/node/' + id,
       method: 'delete',

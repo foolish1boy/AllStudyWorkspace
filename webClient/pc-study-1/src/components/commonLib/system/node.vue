@@ -5,29 +5,31 @@
                 <el-button class="filter-item" style="margin-leftt:10px;margin-bottom:20px" type="primary" icon="el-icon-edit" @click="handleCreate(-1)" > {{ $t('node.addRoot') }} </el-button>
             </el-col>
             <el-col :span="8" >
-                <el-tree :data="nodeList" node-key="Id" :default-expand-all="true" >
-                    <span class="custom-tree-node" >
-                        <span>{{node.label}}</span>
+                <el-tree :data="nodeList" node-key="Id" :props="treeProps" :default-expand-all="true" >
+                    <template #default="{ node, data }">
+                        <span class="custom-tree-node" >
+                        <span>{{data.name}}</span>
                         <span> 
-                            <el-button v-if="data.TempLevel == 1" type="text" size="mini" icon="el-icon-circle-plus-outline" @click="handleCreate(data.Id)" ></el-button> 
+                            <el-button v-if="data.level == 1" type="text" size="mini" icon="el-icon-circle-plus-outline" @click="handleCreate(data.Id)" ></el-button> 
                             <el-button type="text" size="mini" icon="el-icon-edit" @click="handleUpdate(data)" ></el-button>
-                            <el-button  type="text" size="small" icon="el-icon-delete" @click="handleDelete(data)" ></el-button>
+                            <el-button  type="text" size="small" icon="el-icon-delete" @click="handleDelete(data,node)" ></el-button>
                         </span>
                     </span>
+                    </template>
+                    
                 </el-tree>
             </el-col>
         </el-row>
 
-        <!--新增编辑节点  v-el-drag-dialog-->
-        
-        <el-dialog  :title="titleTxt" :close-on-click-modal="false" v-model="dialogFormVisible"   >
+        <!--新增编辑节点 v-el-draggable-dialog elDraggableDialog -->
+        <el-dialog :title="titleTxt" :close-on-click-modal="false" v-model="dialogFormVisible"   >
            
             <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px">
                 <el-form-item :label="$t('node.name')" prop="Name">
                     <el-input v-model="temp.Name" :placeholder="$t('node.name')" :maxlength="GLOBAL.inputMaxLenght"/>
                 </el-form-item>
-                <el-form-item :label="$t('node.url')" prop="Url">
-                    <el-input v-model="temp.Url" :placeholder="$t('node.url')" :maxlength="GLOBAL.inputMaxLenght"/>
+                <el-form-item :label="$t('node.url')" prop="Url" >
+                    <el-input v-model="temp.Url" :placeholder="$t('node.url')" :maxlength="GLOBAL.inputMaxLenght" />
                 </el-form-item>
                 <el-form-item :label="$t('node.icon')" prop="Icon">
                     <el-input v-model="temp.Icon" :placeholder="$t('node.icon')" :maxlength="GLOBAL.inputMaxLenght"/>
@@ -49,7 +51,7 @@
             <template #footer>
                  <div class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">{{ $t('common.cancel') }}</el-button>
-                    <el-button type="primary" @click="dialogStatus==='create' || dialogStatus==='createRoot'?createData():updateData()" :loading="loadingSaveBtn">{{ $t('common.confirm') }}</el-button>
+                    <el-button type="primary" @click="(dialogStatus==='create' || dialogStatus==='createRoot')?createData():updateData()" :loading="loadingSaveBtn">{{ $t('common.confirm') }}</el-button>
                 </div>
             </template>
            
@@ -64,8 +66,11 @@ import { ComponentNodeInfo } from '@/Infos/CommonInfo';
 import { NodeInfo } from '@/Infos/ServerInfos';
 import { formatDataListTree } from "@/commonUtils/CommonUtils";
 import { Options, Vue } from 'vue-class-component';
-import { ElForm, locale } from "element-plus";
+import { ElForm, ElMessage, ElMessageBox } from "element-plus";
 import local from "./local";
+import { reqCreateNode, reqDeleteNode, reqFetchNodeDetail, reqFetchNodeList, reqUpdateNode } from '@/api/system/node';
+import {RuleItem} from 'async-validator';
+import { USER_ACTION_EVENT } from '@/store/modules/user'
 
 @Options<Node>({
     name:"Node",
@@ -79,18 +84,33 @@ import local from "./local";
 export default class Node extends Vue
 {
     private nodeList:ComponentNodeInfo[] = [];
+    public treeProps:{label:string,children:string}= {label:'name',children:'children'}
+
     private dialogFormVisible:boolean = false;
     private loadingSaveBtn:boolean = false;
     private dialogStatus:string = "create";
     private titleTxt:string = "";
-    private temp:NodeInfo = {Id:-1,ParentId:-1,Name:"",Sort:"",Url:"",LangCn:"",Description:"",Icon:""};
-    
-    private rules:{[key:string]:any[]} = {
+    private temp:NodeInfo = {Id:-1,ParentId:-1,Name:"",Sort:0,Url:"",LangCn:"",Description:"",Icon:""};
+        
+    private textMap:{update:string,[key:string]:string} = {
+        update: "edit",
+        create: "add",
+        createRoot: "addRoot",
+        updateRoot: "editRoot"
+      };
+
+
+    private rules:{[key:string]:RuleItem[]} = {
         Name:[
-            {required:true,message:"必须",trigger:"change"}
+            {required:true,message:"必填名字"}
         ],
         LangCn:[
-            {required:true,message:"",trigger:"change"}
+            {required:true,message:"需要名字"}
+        ],
+        Url:[
+            {
+                required:true,message:"地址不能空"
+            }
         ]
 
     }
@@ -103,16 +123,32 @@ export default class Node extends Vue
             this.$gobalI18n.global.mergeLocaleMessage('zh',local.zh);
         }
         this.getList();
+
+        let parentNode:ComponentNodeInfo = {Id:-1,children:[],name:"name0"};
+
+        for(let i = 0; i < 5;i ++)
+        {
+            let childNode:ComponentNodeInfo = {Id:i+1,children:[],name:"name" + (i + 1)};
+            parentNode.children.push(childNode);
+        }
+
+        console.log( parentNode );
+
+        this.nodeList.push(parentNode);
         
     }
 
     private getList():void
     {
-        //test
-        let responseData:NodeInfo[] = [];
-        let parentNode:ComponentNodeInfo = {Id:-1,children:[]};
-        formatDataListTree(parentNode,responseData,1);
-        this.nodeList = parentNode.children;
+        reqFetchNodeList<NodeInfo[]>().then(response=>{
+            let responseData:NodeInfo[] = response.data.Data;
+            let parentNode:ComponentNodeInfo = {Id:-1,children:[]};
+            formatDataListTree(parentNode,responseData,1);
+            this.nodeList = parentNode.children;
+
+            console.log("go this....");
+            console.log( this.nodeList );
+        })
     }
 
     public handleCreate(parentId:number):void
@@ -122,23 +158,90 @@ export default class Node extends Vue
         self.temp.ParentId = parentId;
         self.dialogStatus = parentId == -1 ? "createRoot" : "create";
         self.dialogFormVisible = true;
-        // self.$nextTick(() => {
-        //     (< typeof ElForm>self.$refs["dataForm"]).clearValidate();
-        // });
+         self.$nextTick(() => {
+            //(< typeof ElForm>self.$refs["dataForm"]).clearValidate();
+            let eleform =  self.$refs['dataForm'];
+            (eleform as InstanceType<typeof ElForm>).clearValidate();
+
+         });
 
         
     }
-
-    public handleUpdate(data:NodeInfo):void
+   
+    private createData():void
     {
         let self = this;
+        (self.$refs["dataForm"] as InstanceType<typeof ElForm>).validate(valid=>{
+            if( !valid )
+            {
+                return;
+            }
+
+             self.loadingSaveBtn = true;
+            reqCreateNode(self.temp).then( response=>{
+                self.dialogFormVisible = false;
+                ElMessage.success(this.$t("common.addSuccess"));
+                self.loadingSaveBtn = false;
+                this.getList();
+                self.$store.dispatch(USER_ACTION_EVENT.GET_CONIFG);
+            }).catch(err=>{
+                this.loadingSaveBtn = false;
+            });
+
+        });   
+    }
+
+    public handleUpdate(data:ComponentNodeInfo):void
+    {
+        let self = this;
+        reqFetchNodeDetail<NodeInfo>(data.Id).then(response=>{
+            self.temp = Object.assign({},response.data.Data);
+        }).catch(err=>{})
 
         this.dialogStatus = data.ParentId == -1 ? "updateRoot":"update";
         this.dialogFormVisible = true;
+        self.$nextTick(()=>{
+            (self.$refs['dataForm'] as InstanceType<typeof ElForm>).clearValidate();
+        });
+    }
+
+    public updateData():void
+    {
+        let self = this;
+        (self.$refs['dataForm'] as InstanceType<typeof ElForm >).validate(valide=>{
+            if(!valide)
+            {
+                return;
+            }
+            self.dialogFormVisible = false;
+            const tmpData = Object.assign({},self.temp);
+            reqUpdateNode(tmpData).then( ()=>{
+                self.dialogFormVisible = false;
+                ElMessage.success(self.$t("common.editSuccess"));
+                self.loadingSaveBtn = false;
+                self.getList();
+                self.$store.dispatch(USER_ACTION_EVENT.GET_CONIFG).then(()=>{});
+            }).catch(err=>{
+
+            })
+
+        });
     }
 
     private handleDelete(data:ComponentNodeInfo):void
     {
+        let self = this;
+        ElMessageBox.confirm(self.$t('common.confirmDelete'),self.$t('common.hint'),
+        {confirmButtonText:self.$t('common.confirm'),cancelButtonText:self.$t('common.cancel')})
+        .then(()=>{
+            reqDeleteNode(data.Id).then(response=>{
+                ElMessage.success(self.$t('common.deleteSuccess'));
+                self.getList();
+                self.$store.dispatch(USER_ACTION_EVENT.GET_CONIFG).then(res=>{});
+            }).catch(err=>{
+
+            });
+        }).catch(()=>{});
 
     }
 
@@ -150,7 +253,7 @@ export default class Node extends Vue
         self.temp.Name = "";
         self.temp.Url = "";
         self.temp.Icon = "";
-        self.temp.Sort = "";
+        self.temp.Sort = 0;
         self.temp.LangCn = "";
         self.temp.Description = "";
     }

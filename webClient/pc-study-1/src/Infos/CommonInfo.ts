@@ -1,7 +1,15 @@
 import { Component } from "@vue/runtime-core";
 
+export interface QueryInfo
+{
+    KeyWord:string;
+    Page:number;
+    PageSize:number;
+}
+
 export interface ComponentNodeInfo
 {
+    ParentId?:number;
     Id:number;
     path?:string;
     name?:string;
@@ -10,4 +18,6 @@ export interface ComponentNodeInfo
     children:ComponentNodeInfo[];
     redirect?:string;
     meta?:{title:string,icon:string,noCache:boolean};
+    level?:number;
+    sort?:number;
 }
