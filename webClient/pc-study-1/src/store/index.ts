@@ -1,6 +1,7 @@
 import RootStateTypes from '@/InterfaceTypes'
 import { createStore } from 'vuex'
 import StateUseInfo from './modules/user'
+import StateAppInfo from './modules/app'
 
 export default createStore({
   state: {
@@ -10,6 +11,7 @@ export default createStore({
   actions: {
   },
   modules: {
-    user:StateUseInfo
+    user:StateUseInfo,
+    app:StateAppInfo
   }
 })

@@ -16,6 +16,9 @@ export function formatDataListTree(parentNode:ComponentNodeInfo,list:NodeInfo[],
             continue;
         }
 
+        console.log("parentNode");
+        console.log(parentNode);
+
         const child:ComponentNodeInfo = {Id:node.Id,children:[]};
         child.ParentId = parentNode.Id;
         child.path = node.Url;
@@ -24,6 +27,8 @@ export function formatDataListTree(parentNode:ComponentNodeInfo,list:NodeInfo[],
         child.redirect = node.ParentId == -1 ? "noredirect" : "";
         child.sort = node.Sort;
         child.meta = {title:node.Name,icon:node.Icon,noCache:true};
+        child.langCn = node.LangCn;
+        child.langTw = node.LangTw;
         if( requireCom )
         {
             child.comp = require('@/view' + node.Url + '.vue' );

@@ -9,13 +9,19 @@ const service =   axios.create({
     headers:
     {
         'Content-Type': 'application/json'
-    }
+    },
+    transformRequest: [
+        function (data:any,headers?: any) 
+        {
+          let jsonStr:string = JSON.stringify(data);
+          return jsonStr
+        }
+      ]
 });
 
 //请求前的拦截处理
 service.interceptors.request.use(
     config=>{
-        //
         return config;
     },
     error=>{

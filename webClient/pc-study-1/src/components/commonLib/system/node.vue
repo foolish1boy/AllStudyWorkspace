@@ -22,7 +22,7 @@
         </el-row>
 
         <!--新增编辑节点 v-el-draggable-dialog elDraggableDialog -->
-        <el-dialog :title="titleTxt" :close-on-click-modal="false" v-model="dialogFormVisible"   >
+         <el-dialog :title="titleTxt" :close-on-click-modal="false" v-model="dialogFormVisible"   >
            
             <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px">
                 <el-form-item :label="$t('node.name')" prop="Name">
@@ -122,20 +122,7 @@ export default class Node extends Vue
         {
             this.$gobalI18n.global.mergeLocaleMessage('zh',local.zh);
         }
-        this.getList();
-
-        let parentNode:ComponentNodeInfo = {Id:-1,children:[],name:"name0"};
-
-        for(let i = 0; i < 5;i ++)
-        {
-            let childNode:ComponentNodeInfo = {Id:i+1,children:[],name:"name" + (i + 1)};
-            parentNode.children.push(childNode);
-        }
-
-        console.log( parentNode );
-
-        this.nodeList.push(parentNode);
-        
+        this.getList();     
     }
 
     private getList():void
@@ -146,7 +133,7 @@ export default class Node extends Vue
             formatDataListTree(parentNode,responseData,1);
             this.nodeList = parentNode.children;
 
-            console.log("go this....");
+            console.log("node getList:");
             console.log( this.nodeList );
         })
     }
@@ -260,6 +247,13 @@ export default class Node extends Vue
 }
 </script>
 
-<style lang="sass" scoped>
-
+<style scoped>
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
 </style>

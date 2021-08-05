@@ -12,6 +12,8 @@ export interface ComponentNodeInfo
     ParentId?:number;
     Id:number;
     path?:string;
+    langCn?:string;
+    langTw?:string;
     name?:string;
     //component?:Component;
     comp?:Component;

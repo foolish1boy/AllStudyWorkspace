@@ -1,7 +1,8 @@
-import Request from '@/utils/Request'
+import { ResponseInfo } from '@/Infos/ServerInfos';
+import Request from '@/utils/JSONRequest'
 import { AxiosPromise } from 'axios';
 
-export function reqGetList(query:{[key:string]:any}):AxiosPromise<any>
+export function reqGetList<T>(query:{[key:string]:any}):AxiosPromise<ResponseInfo<T>>
 {
     return Request({
         url:'/system/mode/list',
@@ -13,11 +14,16 @@ export function reqGetList(query:{[key:string]:any}):AxiosPromise<any>
 
 export function reqModeAdd(query:{[key:string]:any}):AxiosPromise<any> 
 {
-    return Request({
-      url: '/system/mode/',
-      method: 'post',
-      params: query
-    })
+  console.log("reqModeAdd:");
+  console.log(query);
+
+  return Request.post('/system/mode/',query);
+
+    // return Request({
+    //   url: '/system/mode/',
+    //   method: 'post',
+    //   params: query
+    // })
   }
   
   export function reqDeleteMode(id:number) :AxiosPromise<any>
@@ -28,10 +34,10 @@ export function reqModeAdd(query:{[key:string]:any}):AxiosPromise<any>
     })
   }
   
-  export function reqEditData(query:{[key:string]:any}):AxiosPromise<any> 
+  export function reqEditData<T>(id:number):AxiosPromise<ResponseInfo<T>>
   {
     return Request({
-      url: '/system/mode/' + query,
+      url: '/system/mode/' + id,
       method: 'get'
     })
   }
