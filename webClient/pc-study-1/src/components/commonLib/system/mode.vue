@@ -112,7 +112,7 @@ import { NodeInfo } from "@/Infos/ServerInfos";
 import { formatDataListTree } from "@/commonUtils/CommonUtils";
 import { ComponentNodeInfo, QueryInfo } from "@/Infos/CommonInfo";
 import { ElForm, ElMessage, ElMessageBox } from "element-plus";
-import { APP_ACTION_EVENT, APP_MUTATION_EVENT } from "@/store/modules/app";
+import { APP_ACTION_EVENT} from "@/store/modules/app";
 
 type ModeState = "fatherAdd" | "fatherEdit"  |  "sonAdd"  | "sonEdit" | "";
 interface ModeType 

@@ -28,7 +28,8 @@ export function formatDataListTree(parentNode:ComponentNodeInfo,list:NodeInfo[],
         child.sort = node.Sort;
         child.meta = {title:node.Name,icon:node.Icon,noCache:true};
         child.langCn = node.LangCn;
-        child.langTw = node.LangTw;
+        child.isLib = node.IsLib;
+        
         if( requireCom )
         {
             child.comp = require('@/view' + node.Url + '.vue' );
@@ -48,4 +49,37 @@ export function sortFun(node1:ComponentNodeInfo,node2:ComponentNodeInfo):number
     }
 
     return node1.sort - node2.sort;
+}
+
+//清空数组空元素
+export function clearNullOfArray<T>(arr:T[]):T[]
+{
+    if(arr)
+    {
+        for(let i = arr.length - 1;i >= 0; i --)
+        {
+            if( arr[i]+"" == '' ||  typeof(arr[i]) == "undefined" )
+            {
+                arr.splice(i,1);
+            }
+        }
+    }
+
+    return arr;
+}
+
+//将字符串数组转化为数值数组
+export function stringTranslateNumber(arr:string[]):number[]
+{
+    let list:number[] = [];
+
+    for(let i = 0; i < arr.length;i++)
+    {
+        if(arr[i] != '')
+        {
+            list.push(Number(arr[i]));
+        }   
+    }
+
+    return list;
 }

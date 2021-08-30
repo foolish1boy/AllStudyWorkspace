@@ -1,7 +1,7 @@
 import RootStateTypes from "@/InterfaceTypes";
 import { Module } from "vuex";
 
-export enum APP_MUTATION_EVENT
+enum APP_MUTATION_EVENT
 {
     
 }

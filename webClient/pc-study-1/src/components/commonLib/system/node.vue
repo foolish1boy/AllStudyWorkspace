@@ -37,9 +37,6 @@
                 <el-form-item :label="$t('node.cn')" prop="LangCn">
                     <el-input v-model="temp.LangCn" :placeholder="$t('node.cn')" :maxlength="GLOBAL.inputMaxLenght"/>
                 </el-form-item>
-                <el-form-item :label="$t('node.tw')">
-                    <el-input v-model="temp.LangTw" :placeholder="$t('node.tw')" :maxlength="GLOBAL.inputMaxLenght"/>
-                </el-form-item>
                 <el-form-item :label="$t('node.sort')" prop="Sort">
                     <el-input-number v-model="temp.Sort" :step="1" :min="1"></el-input-number>
                 </el-form-item>
@@ -62,7 +59,7 @@
 
 <script lang="ts" >
 
-import { ComponentNodeInfo } from '@/Infos/CommonInfo';
+import { ComponentNodeInfo, DialogStatus, ItemStatus } from '@/Infos/CommonInfo';
 import { NodeInfo } from '@/Infos/ServerInfos';
 import { formatDataListTree } from "@/commonUtils/CommonUtils";
 import { Options, Vue } from 'vue-class-component';
@@ -71,15 +68,10 @@ import local from "./local";
 import { reqCreateNode, reqDeleteNode, reqFetchNodeDetail, reqFetchNodeList, reqUpdateNode } from '@/api/system/node';
 import {RuleItem} from 'async-validator';
 import { USER_ACTION_EVENT } from '@/store/modules/user'
+import { awaitWrap } from '@/Infos/CommonDefine';
 
 @Options<Node>({
     name:"Node",
-    watch:{
-        dialogStatus():void
-        {
-            this.titleTxt = this.$t("node." + this.textMap[this.dialogStatus]);
-        }
-    }
 })
 export default class Node extends Vue
 {
@@ -88,15 +80,15 @@ export default class Node extends Vue
 
     private dialogFormVisible:boolean = false;
     private loadingSaveBtn:boolean = false;
-    private dialogStatus:string = "create";
-    private titleTxt:string = "";
-    private temp:NodeInfo = {Id:-1,ParentId:-1,Name:"",Sort:0,Url:"",LangCn:"",Description:"",Icon:""};
+    private dialogStatus:string = DialogStatus.CREATE;
+    private temp:NodeInfo = {Id:-1,ParentId:-1,Name:"",Sort:0,Url:"",LangCn:"",Description:"",Icon:"",IsLib:0};
+    private listLoading:boolean = false;
         
     private textMap:{update:string,[key:string]:string} = {
-        update: "edit",
-        create: "add",
-        createRoot: "addRoot",
-        updateRoot: "editRoot"
+        update: ItemStatus.UPDATE,
+        create: ItemStatus.CREATE,
+        createRoot: ItemStatus.CREATE_ROOT,
+        updateRoot: ItemStatus.UPDATE_ROOT,
       };
 
 
@@ -125,17 +117,21 @@ export default class Node extends Vue
         this.getList();     
     }
 
-    private getList():void
+    private async getList()
     {
-        reqFetchNodeList<NodeInfo[]>().then(response=>{
-            let responseData:NodeInfo[] = response.data.Data;
-            let parentNode:ComponentNodeInfo = {Id:-1,children:[]};
-            formatDataListTree(parentNode,responseData,1);
-            this.nodeList = parentNode.children;
+        this.listLoading = true;
+        let [err,response] = await awaitWrap( reqFetchNodeList<NodeInfo[]>());
+        if( err != null || response == null  )
+        {
+            this.listLoading = false;
+            return;
+        }
 
-            console.log("node getList:");
-            console.log( this.nodeList );
-        })
+        let responseData:NodeInfo[] = response.data.Data;
+        let parentNode:ComponentNodeInfo = {Id:-1,children:[]};
+        formatDataListTree(parentNode,responseData,1);
+        this.nodeList = parentNode.children; 
+        this.listLoading = true;
     }
 
     public handleCreate(parentId:number):void
@@ -143,49 +139,47 @@ export default class Node extends Vue
         let self = this;
         self.resetTemp();
         self.temp.ParentId = parentId;
-        self.dialogStatus = parentId == -1 ? "createRoot" : "create";
+        self.dialogStatus = parentId == -1 ? DialogStatus.CREATE_ROOT : DialogStatus.CREATE;
         self.dialogFormVisible = true;
-         self.$nextTick(() => {
-            //(< typeof ElForm>self.$refs["dataForm"]).clearValidate();
+        self.$nextTick(() => {
             let eleform =  self.$refs['dataForm'];
             (eleform as InstanceType<typeof ElForm>).clearValidate();
-
          });
-
-        
     }
    
-    private createData():void
+    private async createData()
     {
         let self = this;
-        (self.$refs["dataForm"] as InstanceType<typeof ElForm>).validate(valid=>{
-            if( !valid )
-            {
-                return;
-            }
 
-             self.loadingSaveBtn = true;
-            reqCreateNode(self.temp).then( response=>{
-                self.dialogFormVisible = false;
-                ElMessage.success(this.$t("common.addSuccess"));
-                self.loadingSaveBtn = false;
-                this.getList();
-                self.$store.dispatch(USER_ACTION_EVENT.GET_CONIFG);
-            }).catch(err=>{
-                this.loadingSaveBtn = false;
-            });
+        let validteFlag =  await (self.$refs["dataForm"] as InstanceType<typeof ElForm>).validate();
+        if(!validteFlag)
+        {
+            return;
+        }
 
-        });   
+        self.loadingSaveBtn = true;
+        let [err,response] = await awaitWrap(reqCreateNode(self.temp));
+        if( err != null || response == null )
+        {
+            this.loadingSaveBtn = false;
+            return;
+        }
+
+        self.dialogFormVisible = false;
+        ElMessage.success(this.$t("common.addSuccess"));
+        self.loadingSaveBtn = false;
+        this.getList();
+        self.$store.dispatch(USER_ACTION_EVENT.GET_CONIFG); 
     }
 
     public handleUpdate(data:ComponentNodeInfo):void
     {
         let self = this;
-        reqFetchNodeDetail<NodeInfo>(data.Id).then(response=>{
+        reqFetchNodeDetail<NodeInfo>(data.Id as number ).then(response=>{
             self.temp = Object.assign({},response.data.Data);
         }).catch(err=>{})
 
-        this.dialogStatus = data.ParentId == -1 ? "updateRoot":"update";
+        this.dialogStatus = data.ParentId == -1 ? DialogStatus.UPDATE_ROOT:DialogStatus.UPDATE;
         this.dialogFormVisible = true;
         self.$nextTick(()=>{
             (self.$refs['dataForm'] as InstanceType<typeof ElForm>).clearValidate();
@@ -221,7 +215,7 @@ export default class Node extends Vue
         ElMessageBox.confirm(self.$t('common.confirmDelete'),self.$t('common.hint'),
         {confirmButtonText:self.$t('common.confirm'),cancelButtonText:self.$t('common.cancel')})
         .then(()=>{
-            reqDeleteNode(data.Id).then(response=>{
+            reqDeleteNode(data.Id as number ).then(response=>{
                 ElMessage.success(self.$t('common.deleteSuccess'));
                 self.getList();
                 self.$store.dispatch(USER_ACTION_EVENT.GET_CONIFG).then(res=>{});
@@ -229,13 +223,13 @@ export default class Node extends Vue
 
             });
         }).catch(()=>{});
-
     }
 
     private resetTemp():void
     {
         let self = this;
         self.temp.Id = -1;
+        self.temp.IsLib = 0;
         self.temp.ParentId = -1;
         self.temp.Name = "";
         self.temp.Url = "";
@@ -243,6 +237,11 @@ export default class Node extends Vue
         self.temp.Sort = 0;
         self.temp.LangCn = "";
         self.temp.Description = "";
+    }
+
+    private get titleTxt():string
+    {
+        return this.$t("node." + this.textMap[this.dialogStatus]);
     }
 }
 </script>

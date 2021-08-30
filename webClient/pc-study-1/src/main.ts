@@ -1,12 +1,12 @@
 import { createApp, Directive } from 'vue'
 import App from './App.vue'
-import router from './router'
+import {router} from './router'
 import store from './store'
 import ElementPlus from 'element-plus';
 import 'element-plus/lib/theme-chalk/index.css';
 
-import '@/styles/index.scss' // global css
-
+import '@/styles/index.scss'; // global css
+import '@/utils/Permission';
 
 import * as directives from '@/directives'
 import _global from '@/Infos/Global'
@@ -23,6 +23,9 @@ app.use(ElementPlus,{i18n:(key:string,value:string='zh')=>i18n.global.t(key,valu
 app.mount('#app');
 app.config.globalProperties.GLOBAL = _global;
 app.config.globalProperties.$gobalI18n = i18n;
+
+
+console.log("process:"+ process.env.NODE_ENV)
 
 
 Object.keys(directives).forEach(key => {

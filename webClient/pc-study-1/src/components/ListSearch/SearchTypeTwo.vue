@@ -21,6 +21,7 @@
      </template>
       
     </el-input>
+    <!--
     <el-select
       v-model="param.GameId"
       filterable
@@ -31,7 +32,8 @@
       <el-option label="全部子游戏" value></el-option>
       <el-option v-for="(val,key) in gameList" :key="key" :label="val.gameName" :value="key"></el-option>
     </el-select>
-
+    -->
+    
     <range-date
       @chooseDateTime="chooseTime"
       :inputType="dateTimeType"
@@ -71,6 +73,14 @@
 
 <script lang='ts' >
 
+export interface SearchTypeTwoParam
+{
+  filterKey:string;
+  filterValue:string;
+  BeginTime:string|number;
+  EndTime:string|number;
+}
+
 import { Options, prop, Vue } from 'vue-class-component';
 
 @Options<SearchTypeTwo>({
@@ -92,7 +102,28 @@ import { Options, prop, Vue } from 'vue-class-component';
         defaultKey:{type:String,default:'All'},
         showOptions:{type:Boolean,default:true}
     },
-    emits:["addElement","resetParams"]
+    emits:{
+      getParams():boolean
+      {
+        return true;
+      },
+      resetParams():boolean
+      {
+        return true;
+      },
+      addElement():boolean
+      {
+        return true;
+      },
+      manualElement():boolean
+      {
+        return true;
+      },
+      rejectElement():boolean
+      {
+        return true;
+      }
+    },
 })
 export default class SearchTypeTwo extends Vue
 {
@@ -100,7 +131,7 @@ export default class SearchTypeTwo extends Vue
     private options:any[] = [];
     private showAddBtn:boolean = false;
     private showInput:boolean=true;
-    private defaultDateTime:any[] = [];;
+    private defaultDateTime:any[] = [];
     private showBatchManualABtn:boolean = false;
     private showBatchRejectABtn:boolean = false;
     private showDateTime:boolean = true;
@@ -113,7 +144,7 @@ export default class SearchTypeTwo extends Vue
     private showOptions:boolean = true;
 
     public dataTime:any[] = [];
-    public param:{filterKey:string,filterValue:string,BeginTime:string|number,EndTime:string|number} = {
+    public param:SearchTypeTwoParam = {
         filterKey:this.defaultKey,
         filterValue:this.defaultValue,
         BeginTime: this.defaultDateTime[0] ? Math.floor(this.defaultDateTime[0] / 1000) : "",

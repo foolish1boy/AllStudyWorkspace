@@ -30,12 +30,37 @@ const routes: Array<RouteRecordRaw> = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "node" */ '@/components/commonLib/system/node.vue')
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "admin" */ '@/components/commonLib/system/admin.vue')
+  },
+  {
+    path: '/login',
+    name: 'login',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "login" */ '@/views/login/index.vue')
+  },
+  {
+    path: '/role',
+    name: 'role',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "role" */ '@/components/commonLib/system/role.vue')
   }
 ]
 
-const router = createRouter({
+export let router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
 
-export default router
+export let constantRoutes = routes;
+

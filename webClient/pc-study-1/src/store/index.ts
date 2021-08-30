@@ -1,7 +1,8 @@
 import RootStateTypes from '@/InterfaceTypes'
 import { createStore } from 'vuex'
-import StateUseInfo from './modules/user'
+import StateUseInfo, { StateUserInfoData } from './modules/user'
 import StateAppInfo from './modules/app'
+import StatePermissionInfo from './modules/permission'
 
 export default createStore({
   state: {
@@ -12,6 +13,12 @@ export default createStore({
   },
   modules: {
     user:StateUseInfo,
-    app:StateAppInfo
+    app:StateAppInfo,
+    permission:StatePermissionInfo,
+  },
+  getters:
+  {
+    roles:(state:any) => state.user.roles,
+    token:(state:any) => state.user.token,
   }
 })

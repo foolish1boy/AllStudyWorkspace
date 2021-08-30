@@ -180,7 +180,7 @@ export default class Role extends Vue{
 
     public created():void
     {
-
+        console.log("go this..");
     }
 }
 </script>

@@ -1,5 +1,7 @@
+import store from '@/store';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
+import { getToken } from './auth';
 
 console.log("rocess.env.NODE_ENV:" + process.env.NODE_ENV + " process.env.VUE_APP_BASEAPI:" + process.env.VUE_APP_BASEAPI);
 
@@ -22,6 +24,17 @@ const service =   axios.create({
 //请求前的拦截处理
 service.interceptors.request.use(
     config=>{
+        // Do something before request is sent
+        let token = getToken();
+        console.log("store.getters.token 2:" + token);
+        if( token )
+        {
+            // 让每个请求携带Authorization
+            config.headers['Authorization'] = getToken();
+
+            console.log("token:" + getToken());
+        }
+
         return config;
     },
     error=>{
