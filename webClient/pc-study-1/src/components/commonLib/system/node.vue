@@ -109,6 +109,7 @@ export default class Node extends Vue
 
     public created():void
     {
+        console.log("node created")
         let self = this;
         if(!this.$gobalI18n.global.getLocaleMessage("zh")["node"])
         {

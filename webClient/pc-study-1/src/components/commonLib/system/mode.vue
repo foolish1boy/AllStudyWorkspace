@@ -42,7 +42,7 @@
 
 
          <!--弹出框-->
-        <el-dialog v-model="dialogFormVisible" title="弹出框" >
+        <el-dialog v-model="dialogFormVisible" :title="(state == 'fatherAdd'|| state == 'sonAdd')?'添加模块':'编辑模块'" :close-on-click-modal="false" >
             <el-form ref="dataForm" :rules="rules" :model="popupParam" label-position="right" label-width="100px" v-loading="dialogLoading">
                 <!-- 类型 -->
                 <el-form-item :label="$t('mode.modeName')" v-if="state == 'fatherAdd' || state == 'fatherEdit'">
@@ -53,19 +53,19 @@
                 </el-form-item>
                 <!-- 名称 -->
                 <el-form-item :label="$t('mode.modeName')" prop="Name">
-                    <el-input v-model="popupParam.Name"/>
+                    <el-input v-model="popupParam.Name" placeholder="请输入中文名" />
                 </el-form-item>
                 <!--节点-->
                 <el-form-item :label="$t('mode.nodeName')" prop="NodeId">
                     <el-select v-model="popupParam.NodeId" filterable placeholder="请选择节点" style="width:100%">
                         <el-option-group v-for="group in nodeList" :key="group.Id" :label="group.langCn">
-                        <el-option v-for="item in group.children" :key="item.Id" :label="item.langCn" :value="item.Id"></el-option>
+                        <el-option v-for="item in group.children" :key="item.Id" :label="item.langCn + '(' + item.name + ')'" :value="item.Id"></el-option>
                         </el-option-group>
                     </el-select>
                 </el-form-item>
                 <!-- 别名 -->
                 <el-form-item :label="$t('mode.modeAlias')" prop="Key">
-                    <el-input v-model="popupParam.Key"/>
+                    <el-input v-model="popupParam.Key" placeholder="请输入英文名" />
                 </el-form-item>
                 <!-- 排序 -->
                 <el-form-item :label="$t('mode.modeSort')" prop="sort">
@@ -128,7 +128,8 @@ interface ModeType
     Sort:number,
     Description:string;
 
-    Func?:number
+    Func?:number,
+    NodeId?:string;
 }
 
 @Options({
@@ -147,7 +148,7 @@ export default class Mode extends Vue
 
     public rules:{[key:string]:any[]} | undefined = undefined;  
     private popupParam:ModeType = {
-        Id:NaN,Type:0,Md5:"",ParentId:-1,Name:"",Key:"",Logs:0,Sort:100,Description:""
+        Id:NaN,Type:0,Md5:"",ParentId:-1,Name:"",Key:"",Logs:0,Sort:100,Description:"",NodeId:"",
     };
 
     public created():void
@@ -200,6 +201,7 @@ export default class Mode extends Vue
     {
         let self = this;
         self.state = "fatherAdd";
+        self.fnResetParam(-1);
         this.dialogFormVisible = true;
         this.$nextTick(()=>{
             let eleform =  this.$refs["dataForm"];
@@ -260,6 +262,7 @@ export default class Mode extends Vue
       this.popupParam.Logs = 1;
       this.popupParam.Sort = 100;
       this.popupParam.Description = "";
+      this.popupParam.NodeId = "";
     }
 
     public Editfunc(id:number):void 
@@ -311,8 +314,6 @@ export default class Mode extends Vue
             this.loading = true;
             if( this.state == 'fatherAdd' || this.state == 'sonAdd' )
             {
-                console.log("go this...");
-                console.log( this.popupParam );
                 reqModeAdd(this.popupParam).then(response=>{
                     ElMessage.success(this.$t('mode.addSuccess'));
                     this.loading = false;
@@ -336,6 +337,10 @@ export default class Mode extends Vue
 
 <style lang="scss" scoped>
 .cursor
+{
+    cursor: pointer
+}
+.add_cursor
 {
     cursor: pointer
 }

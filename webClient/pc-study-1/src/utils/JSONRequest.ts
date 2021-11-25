@@ -26,13 +26,12 @@ service.interceptors.request.use(
     config=>{
         // Do something before request is sent
         let token = getToken();
-        console.log("store.getters.token 2:" + token);
+        //console.log("store.getters.token 2:" + token);
         if( token )
         {
             // 让每个请求携带Authorization
             config.headers['Authorization'] = getToken();
-
-            console.log("token:" + getToken());
+            //console.log("send req with token:" + getToken());
         }
 
         return config;
@@ -51,6 +50,11 @@ service.interceptors.response.use(
         }
 
         //debugger;
+
+        let errMsg:string = response.data.Msg || "服务器请求错误";
+
+        console.log(errMsg+" url:" + response.config.url);
+        //console.log(response.config.url)
 
         ElMessage({
             message:response.data.Msg || "服务器请求错误",

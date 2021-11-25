@@ -52,7 +52,6 @@
         :close-on-click-modal="false"
         :visible="dialogFormVisible"
         height="900"
-        v-el-drag-dialog
         @close="loadingSaveBtn = false"
         >
         <el-form
@@ -107,9 +106,9 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import SearchTypeTwo from '@/components/ListSearch/SearchTypeTwo.vue'
+import SearchTypeTwo, { SearchTypeTwoParam } from '@/components/ListSearch/SearchTypeTwo.vue'
 import Pagination from '@/components/Pagination.vue'
-import {} from '@/api/system/role'
+import {reqFetchList} from '@/api/system/role'
 import { QueryInfo } from "@/Infos/CommonInfo";
 
 @Options({
@@ -149,7 +148,7 @@ export default class Role extends Vue{
     // 查询条件
     private listQuery:QueryInfo =  {
         Page: 1,
-        PageSize: this.$store.getters.pageSize,
+        PageSize: 1,//this.$store.getters.pageSize
         KeyWord: ""
     };
     // 新增/编辑数据字段
@@ -171,7 +170,7 @@ export default class Role extends Vue{
         Name: [
             {
             required: true,
-            message: this.$t("rules.required"),
+            message: "必须",
             trigger: "blur"
             }
         ]
@@ -181,7 +180,47 @@ export default class Role extends Vue{
     public created():void
     {
         console.log("go this..");
+
+        let abc = this.$store.getters;
+
+        console.log("abc");
+        console.log(abc)
     }
+
+    private async getList()
+    {
+        this.listLoading = true;
+        
+    }
+
+    private getQueryParams(val:SearchTypeTwoParam):void
+    {
+        let self = this;
+        this.listQuery.Page = 1;
+        this.listQuery.BeginTime = val.BeginTime;
+        this.listQuery.EndTime = val.EndTime;
+        this.listQuery.KeyWord = "";
+
+        if( val.filterKey == "All" )
+        {
+            this.listQuery.KeyWord = val.filterValue;
+        }
+        else if(val.filterKey == "Name")
+        {
+            this.listQuery.KeyWord = val.filterValue;
+        }
+    }
+
+    private resetQyeryParams():void
+    {
+        this.listQuery.Page = 1;
+        this.listQuery.Sort = "";
+        this.listQuery.KeyWord = "";
+        this.listQuery.EndTime = "";
+        this.listQuery.BeginTime = "";
+        this.getList();
+    }
+
 }
 </script>
 

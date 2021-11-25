@@ -1,7 +1,7 @@
 import RootStateTypes from '@/InterfaceTypes'
 import { createStore } from 'vuex'
 import StateUseInfo, { StateUserInfoData } from './modules/user'
-import StateAppInfo from './modules/app'
+import StateAppInfo, { StateAppInfoData } from './modules/app'
 import StatePermissionInfo from './modules/permission'
 
 export default createStore({
@@ -20,5 +20,6 @@ export default createStore({
   {
     roles:(state:any) => state.user.roles,
     token:(state:any) => state.user.token,
+    pageSize:(state:any) => (<StateAppInfoData>state.app).pageSize,
   }
 })

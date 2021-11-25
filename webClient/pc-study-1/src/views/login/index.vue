@@ -66,6 +66,15 @@ export default class Login extends Vue{
    public created():void
    {
      console.log("login index");
+
+     if(__DEV__)
+     {
+       console.log("...........................................___DEV__true");
+     }
+     else
+     {
+        console.log("...........................................___DEV__false");
+     }
    }
 
    private async handleLogin()
@@ -88,6 +97,7 @@ export default class Login extends Vue{
         return;
       }
 
+      console.log("response.data.Data");
       console.log(response.data.Data);
 
       let token = response.data.Data; 
@@ -104,16 +114,25 @@ export default class Login extends Vue{
      console.log('menu:');
       console.log( res.data.Data );
 
-     let [err2,accessRoutes] = await awaitWrap<ComponentNodeInfo,any>(this.$store.dispatch(PERMISSION_ACTION_EVENT.GENERATE_ROUTES,{menu:menu}));
+     let [err2,accessRoutes] = await awaitWrap<ComponentNodeInfo[],any>(this.$store.dispatch(PERMISSION_ACTION_EVENT.GENERATE_ROUTES,{menu:menu}));
      if(err2 != null || accessRoutes == null)
      {
-       return;
+       console.log("login accessRoutes");
+        return;
      }
 
-      console.log("login handler");
+      console.log(accessRoutes)
 
-    this.$router.push({name:'node'});
-     
+     if( accessRoutes.length == 0 || accessRoutes[0].children == undefined || accessRoutes[0].children.length == 0 )
+      {
+        this.$router.push({path:"node"});
+      }
+      else
+      {
+        let pathStr:string = accessRoutes[0].children[0].path as string;
+        this.$router.push({path:pathStr});
+      }
+
    }
 
    private showPwd():void

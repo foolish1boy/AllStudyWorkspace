@@ -11,6 +11,9 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020
   },
+  globals:{
+    "__DEV__":process.env.NODE_ENV !== 'production',
+  },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
@@ -27,5 +30,5 @@ module.exports = {
     "no-empty":['off'],
     "prefer-const":['off'],
 
-  }
+  },
 }

@@ -7,6 +7,7 @@ const externals = {
 
 module.exports = 
 {
+  lintOnSave:"default",
     devServer:
     {
         port:8183,
@@ -50,15 +51,25 @@ module.exports =
         }
     },
 
-    module:{
-        rules:[
-            {
-                test: /\.js$/,
-                //把对.js 的文件处理交给id为happyBabel 的HappyPack 的实例执行
-                loader: 'happypack/loader?id=happyBabel',
-                //排除node_modules 目录下的文件
-                exclude: /node_modules/
-            }
-        ]
+    chainWebpack:config=>{
+      console.log("config....." + JSON.stringify(process.env.NODE_ENV !== 'production'));
+      config.plugin("define")
+      .tap(args=>{
+        args[0].__DEV__ = JSON.stringify(process.env.NODE_ENV !== 'production');
+        console.log(JSON.stringify(args[0]));
+        return args
+      })
     }
+
+    // module:{
+    //     rules:[
+    //         {
+    //             test: /\.js$/,
+    //             //把对.js 的文件处理交给id为happyBabel 的HappyPack 的实例执行
+    //             loader: 'happypack/loader?id=happyBabel',
+    //             //排除node_modules 目录下的文件
+    //             exclude: /node_modules/
+    //         }
+    //     ]
+    // }
 }

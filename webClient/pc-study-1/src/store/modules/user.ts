@@ -72,6 +72,7 @@ const StateUseInfo:Module<StateUserInfoData,RootStateTypes> =
                 .then(response=>{
                     if( response.data.Data == undefined )
                     {
+                        console.log("请重新登陆")
                         reject('请重新登陆');
                         return;
                     }
@@ -109,8 +110,11 @@ const StateUseInfo:Module<StateUserInfoData,RootStateTypes> =
                     if( response.data.Data == undefined )
                     {
                         reject('请重新登陆');
+                        return;
                     }
                     let data = response.data.Data;
+                    console.log("userInfoData");
+                    console.log(data)
                     this.commit(USER_MUTATION_EVENT.SET_TOKEN,data.Token);
                     this.commit(USER_MUTATION_EVENT.SET_ACCOUNT,data.Account);
                     this.commit(USER_MUTATION_EVENT.SET_ADMININFO,data);
@@ -122,6 +126,7 @@ const StateUseInfo:Module<StateUserInfoData,RootStateTypes> =
                     else
                     {
                         reject('获取用户信息错误');
+                        return;
                     }
                     resolve(response);
                 })

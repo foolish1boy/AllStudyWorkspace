@@ -40,7 +40,6 @@ export function getUserInfo()
 
 export function getSystemConfig<T>():AxiosPromise<ResponseInfo<T>>
 {
-    console.log(" loginApi getSystemConfig:");
     return Request({
         url:'/system/public/config',
         method:'get'
